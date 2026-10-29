@@ -24,17 +24,18 @@
       function show(html,color){st.innerHTML=html;st.style.color=color||'';st.style.fontSize='14px';}
       btn.disabled=true; btn.style.opacity='.7'; btn.textContent='Sending\u2026';
       show('Sending your message\u2026');
-      var data={name:name.value.trim(),email:email.value.trim(),subject:f.elements.subject.value,message:f.elements.message.value,
-        _subject:'New website inquiry \u2014 s3csllc.com',_template:'table',_captcha:'false',_replyto:email.value.trim(),_honey:''};
+      var data={name:name.value.trim(),email:email.value.trim(),subject:f.elements.subject.value,message:f.elements.message.value,page:location.href,_honey:''};
       function fail(){
         btn.disabled=false; btn.style.opacity=''; btn.innerHTML=label;
         var mt='mailto:Info@s3csllc.com?subject='+encodeURIComponent('Website inquiry: '+data.subject)+'&body='+encodeURIComponent('Name: '+data.name+'\nEmail: '+data.email+'\n\n'+data.message);
         show('Sorry, your message couldn\u2019t be sent. Please email <a href="'+mt+'" style="color:inherit;text-decoration:underline">Info@s3csllc.com</a> or call <a href="tel:+18004750815" style="color:inherit;text-decoration:underline">(800) 475-0815</a>.','#ff9a9a');
       }
-      fetch('https://formsubmit.co/ajax/Info@s3csllc.com',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
+      // Our own sender (Vendor Desk). Form-encoded = no CORS preflight. Its server may take up to ~60 s to wake up.
+      var ac=window.AbortController?new AbortController():null; if(ac)setTimeout(function(){ac.abort();},75000);
+      fetch('https://vendor.s3csllc.com/api/contact',{method:'POST',headers:{'Accept':'application/json'},body:new URLSearchParams(data),signal:ac?ac.signal:undefined})
         .then(function(r){return r.json().catch(function(){return {};}).then(function(j){return {ok:r.ok,j:j};});})
         .then(function(res){
-          if(res.ok&&(res.j.success===true||res.j.success==='true')){
+          if(res.ok&&(res.j.ok===true||res.j.success===true||res.j.success==='true')){
             f.reset(); btn.style.opacity=''; btn.innerHTML='Message sent \u2713';
             show('<strong>Thanks, we\u2019ll get back to you within 1 business day.</strong>','#7ee2a8');
           } else { fail(); }
