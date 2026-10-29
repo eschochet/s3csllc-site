@@ -28,7 +28,8 @@
         _subject:'New website inquiry \u2014 s3csllc.com',_template:'table',_captcha:'false',_replyto:email.value.trim(),_honey:''};
       function fail(){
         btn.disabled=false; btn.style.opacity=''; btn.innerHTML=label;
-        show('Sorry, your message couldn\u2019t be sent. Please email <a href="mailto:Info@s3csllc.com" style="color:inherit;text-decoration:underline">Info@s3csllc.com</a> or call <a href="tel:+18004750815" style="color:inherit;text-decoration:underline">(800) 475-0815</a>.','#ff9a9a');
+        var mt='mailto:Info@s3csllc.com?subject='+encodeURIComponent('Website inquiry: '+data.subject)+'&body='+encodeURIComponent('Name: '+data.name+'\nEmail: '+data.email+'\n\n'+data.message);
+        show('Sorry, your message couldn\u2019t be sent. Please email <a href="'+mt+'" style="color:inherit;text-decoration:underline">Info@s3csllc.com</a> or call <a href="tel:+18004750815" style="color:inherit;text-decoration:underline">(800) 475-0815</a>.','#ff9a9a');
       }
       fetch('https://formsubmit.co/ajax/Info@s3csllc.com',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
         .then(function(r){return r.json().catch(function(){return {};}).then(function(j){return {ok:r.ok,j:j};});})
@@ -36,7 +37,6 @@
           if(res.ok&&(res.j.success===true||res.j.success==='true')){
             f.reset(); btn.style.opacity=''; btn.innerHTML='Message sent \u2713';
             show('<strong>Thanks, we\u2019ll get back to you within 1 business day.</strong>','#7ee2a8');
-            st.focus&&st.setAttribute('tabindex','-1');
           } else { fail(); }
         }).catch(fail);
     });
